@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My Online Shop</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>My Online Shop</h1>
+        <div id="cart-icon">🛒 Cart (<span id="cart-count">0</span>)</div>let products = JSON.parse(localStorage.getItem('products')) || [];
+const productList = document.getElementById('product-list');
+
+function renderAdminProducts() {
+    productList.innerHTML = '';
+    products.forEach((p, i) => {
+        const li = document.createElement('li');
+        li.innerHTML = `${p.name} - LKR ${p.price} - Stock: ${p.stock} 
+            <button onclick="editProduct(${i})">Edit</button>
+            <button onclick="deleteProduct(${i})">Delete</button>`;
+        productList.appendChild(li);
+    });
+}
+
+document.getElementById('add-product').addEventListener('click', () => {
+    const name = document.getElementById('prod-name').value;
+    const image = document.getElementById('prod-image').value;
+    const price = parseFloat(document.getElementById('prod-price').value);
+    const stock = parseInt(document.getElementById('prod-stock').value);
+
+    if(!name || !image || isNaN(price) || isNaN(stock)) return alert('Fill all fields correctly!');
+    
+    products.push({name, image, price, stock});
+    localStorage.setItem('products', JSON.stringify(products));
+    renderAdminProducts();
+});
+
+function editProduct(index) {
+    const newName = prompt('New Name', products[index].name);
+    const newImage = prompt('New Image filename', products[index].image);
+    const newPrice = parseFloat(prompt('New Price', products[index].price));
+    const newStock = parseInt(prompt('New Stock', products[index].stock));
+    
+    if(newName && newImage && !isNaN(newPrice) && !isNaN(newStock)) {
+        products[index] = {name:newName, image:newImage, price:newPrice, stock:newStock};
+        localStorage.setItem('products', JSON.stringify(products));
+        renderAdminProducts();
+    }
+}
+
+function deleteProduct(index) {
+    if(confirm('Are you sure?')) {
+        products.splice(index,1);
+        localStorage.setItem('products', JSON.stringify(products));
+        renderAdminProducts();
+    }
+}
+
+renderAdminProducts();
+
+    </header>
+
+    <main>let products = JSON.parse(localStorage.getItem('products')) || [];
+const productList = document.getElementlet products = JSON.parse(localStorage.getItem('products')) || [];
+let cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+const productsContainer = document.getElementById('products');
+const cartItems = document.getElementById('cart-items');
+const cartCount = document.getElementById('cart-count');
+const cartTotal = document.getElementById('cart-total');
+
+function renderProducts() {
+    productsContainer.innerHTML = '';
+    products.forEach((p, index) => {
+        const card = document.createElement('div');
+        card.className = 'product-card';
+        card.innerHTML = `
+            <img src="items/${p.image}" alt="${p.name}">
+            <h3>${p.name}</h3>
+            <p>LKR ${p.price}</p>
+            <p>Stock: ${p.stock}</p>
+            <button onclick="addToCart(${index})" ${p.stock===0?'disabled':''}>Add to Cart</button>
+        `;
+        productsContainer.appendChild(card);
+    });
+}
+
+function renderCart() {
+    cartItems.innerHTML = '';
+    let total = 0;
+    cart.forEach((c, i) => {
+        const product = products[c.index];
+        total += product.price * c.quantity;
+        cartItems.innerHTML += `<li>${product.name} x ${c.quantity} <button onclick="removeFromCart(${i})">Remove</button></li>`;
+    });
+    cartTotal.textContent = total;
+    cartCount.textContent = cart.reduce((a,b)=>a+b.quantity,0);
+}
+
+function addToCart(index) {
+    const product = products[index];
+    if(product.stock <= 0) return alert('Out of stock!');
+    
+    const cartItem = cart.find(c => c.index === index);
+    if(cartItem) cartItem.quantity++;
+    else cart.push({index, quantity:1});
+    
+    product.stock--;
+    localStorage.setItem('cart', JSON.stringify(cart));
+    localStorage.setItem('products', JSON.stringify(products));
+    
+    renderProducts();
+    renderCart();
+}
+
+function removeFromCart(cartIndex) {
+    const c = cart[cartIndex];
+    products[c.index].stock += c.quantity;
+    cart.splice(cartIndex,1);
+    localStorage.setItem('cart', JSON.stringify(cart));
+    localStorage.setItem('products', JSON.stringify(products));
+    renderProducts();
+    renderCart();
+}
+
+document.getElementById('whatsapp-order').addEventListener('click', () => {
+    const name = document.getElementById('customer-name').value;
+    const phone = document.getElementById('customer-phone').value;
+    const address = document.getElementById('customer-address').value;
+    const notes = document.getElementById('customer-notes').value;
+    
+    if(!name || !phone || !address) return alert('Please fill in all details!');
+    
+    let message = `Order Details:\n`;
+    cart.forEach(c => {
+        const p = products[c.index];
+        message += `${p.name} x ${c.quantity} = LKR ${p.price*c.quantity}\n`;
+    });
+    message += `Total: LKR ${cartTotal.textContent}\n`;
+    message += `Name: ${name}\nPhone: ${phone}\nAddress: ${address}\nNotes: ${notes}`;
+    
+    const whatsappNumber = '94702828839'; // replace with your number
+    window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`, '_blank');
+});
+renderProducts();
+renderCart();
+ById('product-list');
+
+function renderAdminProducts() {body {
+    font-family: Arial, sans-serif;
+    margin: 0; padding: 0;
+    background: #f9f9f9;
+}
+
+header {
+    background: #007bff;
+    color: #fff;
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+h1 { margin: 0; }
+
+#products {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 20px;
+    gap: 20px;
+}
+
+.product-card {
+    background: #fff;
+    border: 1px solid #ddd;
+    padding: 10px;
+    width: 200px;
+    text-align: center;
+    border-radius: 5px;
+}
+
+.product-card img {
+    width: 100%;
+    height: auto;
+}
+
+button {
+    padding: 5px 10px;
+    margin-top: 10px;
+    cursor: pointer;
+}
+
+#cart-section {
+    padding: 20px;
+    max-width: 500px;
+    margin: auto;
+    background: #fff;
+    border-radius: 5px;
+    margin-bottom: 30px;
+}
+
+#cart-items { list-style: none; padding: 0; }
+#cart-items li { padding: 5px 0; border-bottom: 1px solid #ddd; }
+
+input, textarea {
+    width: 100%;
+    padding: 5px;
+    margin: 5px 0;
+}
+
+    productList.innerHTML = '';
+    products.forEach((p, i) => {
+        const li = document.createElement('li');
+        li.innerHTML = `${p.name} - LKR ${p.price} - Stock: ${p.stock} 
+            <button onclick="editProduct(${i})">Edit</button>
+            <button onclick="deleteProduct(${i})">Delete</button>`;
+        productList.appendChild(li);
+    });
+}
+
+document.getElementById('add-product').addEventListener('click', () => {
+    const name = document.getElementById('prod-name').value;
+    const image = document.getElementById('prod-image').value;
+    const price = parseFloat(document.getElementById('prod-price').value);
+    const stock = parseInt(document.getElementById('prod-stock').value);
+
+    if(!name || !image || isNaN(price) || isNaN(stock)) return alert('Fill all fields correctly!');
+    
+    products.push({name, image, price, stock});
+    localStorage.setItem('products', JSON.stringify(products));
+    renderAdminProducts();
+});
+
+function editProduct(index) {
+    const newName = prompt('New Name', products[index].name);
+    const newImage = prompt('New Image filename', products[index].image);
+    const newPrice = parseFloat(prompt('New Price', products[index].price));
+    const newStock = parseInt(prompt('New Stock', products[index].stock));
+    
+    if(newName && newImage && !isNaN(newPrice) && !isNaN(newStock)) {
+        products[index] = {name:newName, image:newImage, price:newPrice, stock:newStock};
+        localStorage.setItem('products', JSON.stringify(products));
+        renderAdminProducts();
+    }
+}
+
+function deleteProduct(index) {
+    if(confirm('Are you sure?')) {
+        products.splice(index,1);
+        localStorage.setItem('products', JSON.stringify(products));
+        renderAdminProducts();
+    }
+}
+
+renderAdminProducts();
+
+        <section id="products"></section>
+
+        <section id="cart-section">
+            <h2>Your Cart</h2>
+            <ul id="cart-items"></ul>
+            <p>Total: LKR <span id="cart-total">0</span></p>
+
+            <h3>Delivery Details</h3>
+            <input type="text" id="customer-name" placeholder="Name">
+            <input type="text" id="customer-phone" placeholder="Phone">
+            <input type="text" id="customer-address" placeholder="Address">
+            <textarea id="customer-notes" placeholder="Notes (optional)"></textarea>
+            <button id="whatsapp-order">Order via WhatsApp</button>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
